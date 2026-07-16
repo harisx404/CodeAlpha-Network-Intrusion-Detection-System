@@ -1,5 +1,7 @@
 from typing import Dict, Any, Optional
 from datetime import datetime
+from cachetools import TTLCache
+
 from backend.core.event_bus import event_bus
 from backend.detection.geoip_enricher import GeoIPEnricher
 from backend.detection.threat_intel import ThreatIntel
@@ -10,7 +12,8 @@ class AlertManager:
     def __init__(self, geoip_enricher: GeoIPEnricher, threat_intel: ThreatIntel):
         self.geoip_enricher = geoip_enricher
         self.threat_intel = threat_intel
-        self._recent_alerts = {}  # Deduplication stub
+        # Keep deduplication keys for 60 seconds, max 10,000 items in memory to prevent leaks
+        self._recent_alerts = TTLCache(maxsize=10000, ttl=60)
 
     async def process_parsed_alert(self, parsed_alert: Dict[str, Any]) -> None:
         """Process an alert, enrich it, save to DB, and publish to EventBus."""
@@ -19,11 +22,9 @@ class AlertManager:
 
         # Deduplication
         dedup_key = f"{parsed_alert.get('src_ip')}-{parsed_alert.get('signature_id')}"
-        now = datetime.now().timestamp()
         if dedup_key in self._recent_alerts:
-            if now - self._recent_alerts[dedup_key] < 60:
-                return # Skip duplicate within 60 seconds
-        self._recent_alerts[dedup_key] = now
+            return  # Skip duplicate
+        self._recent_alerts[dedup_key] = True
 
         # Enrichment
         src_country = self.geoip_enricher.lookup_country(parsed_alert.get("src_ip", ""))

@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
 class TimestampMixin:
     """Mixin to add created_at and updated_at timestamps to models."""
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
