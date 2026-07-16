@@ -99,4 +99,4 @@ Please read `CONTRIBUTING.md` for branch naming conventions and issue templates.
 
 ## 📄 License
 
-This project is licensed under the MIT License. Developed and maintained by [Muhammad Haris](https://github.com/Harisx404) | [LinkedIn](https://linkedin.com/in/Harisx404). Contact: [itsharis.tech@gmail.com](mailto:itsharis.tech@gmail.com).
+This project is licensed under the MIT License. Developed and maintained by [Muhammad Haris](https://github.com/Harisx404) | [LinkedIn](https://linkedin.com/in/Harisx404).    Contact: [itsharis.tech@gmail.com](mailto:itsharis.tech@gmail.com).
