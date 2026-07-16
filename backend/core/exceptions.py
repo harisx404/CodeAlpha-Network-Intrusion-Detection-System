@@ -1,5 +1,10 @@
 from fastapi import HTTPException, status
 
+class BaseNIDSError(Exception):
+    def __init__(self, status_code: int, message: str):
+        self.status_code = status_code
+        self.message = message
+
 class NotFoundError(HTTPException):
     def __init__(self, detail: str = "Item not found"):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)

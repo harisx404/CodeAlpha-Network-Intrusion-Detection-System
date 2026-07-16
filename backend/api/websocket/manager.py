@@ -29,10 +29,11 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# Subscribe to the event bus for new alerts
-@event_bus.subscribe("new_alert")
 async def handle_new_alert(payload: Dict[str, Any]):
     await manager.broadcast({"type": "new_alert", "data": payload})
+
+# Subscribe to the event bus for new alerts
+event_bus.subscribe("new_alert", handle_new_alert)
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
