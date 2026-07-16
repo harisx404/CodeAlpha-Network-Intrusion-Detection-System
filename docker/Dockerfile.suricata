@@ -1,0 +1,7 @@
+FROM jasonish/suricata:latest
+
+# Ensure log and rule directories exist
+RUN mkdir -p /var/log/suricata /etc/suricata/rules
+
+# Note: We rely on volumes to map the suricata.yaml and rules directory
+CMD ["-c", "/etc/suricata/suricata.yaml", "-i", "eth0"]

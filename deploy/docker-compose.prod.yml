@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      - APP_ENV=production
+      # In production, these should be securely injected via environment, not hardcoded
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    volumes:
+      # No source code mounting in prod
+      - ./suricata/logs:/var/log/suricata
+      - nids-db:/app/backend/database
+
+volumes:
+  nids-db:
