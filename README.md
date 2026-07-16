@@ -97,6 +97,22 @@ We enforce strict CI/CD guidelines. All pull requests must pass:
 
 Please read `CONTRIBUTING.md` for branch naming conventions and issue templates.
 
-## 📄 License
+## 📄 License & Contact
 
-This project is licensed under the MIT License. Developed and maintained by [Muhammad Haris](https://github.com/Harisx404) | [LinkedIn](https://linkedin.com/in/Harisx404).    Contact: [itsharis.tech@gmail.com](mailto:itsharis.tech@gmail.com).
+This project is licensed under the **MIT License**.
+
+<div align="center">
+  <h3>Developed & Maintained By</h3>
+  <h2>Muhammad Haris</h2>
+  <br />
+  
+  <a href="https://github.com/Harisx404">
+    <img src="https://img.shields.io/badge/GitHub-Harisx404-181717?style=for-the-badge&logo=github" alt="GitHub Profile" />
+  </a>
+  <a href="https://linkedin.com/in/Harisx404">
+    <img src="https://img.shields.io/badge/LinkedIn-Harisx404-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn Profile" />
+  </a>
+  <a href="mailto:itsharis.tech@gmail.com">
+    <img src="https://img.shields.io/badge/Email-itsharis.tech@gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email Contact" />
+  </a>
+</div>
