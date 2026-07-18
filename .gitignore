@@ -30,3 +30,15 @@ GeoLite2-*.mmdb
 .idea/
 *.swp
 .DS_Store
+
+# Node build info & caches
+*.tsbuildinfo
+.turbo/
+
+# Test & tooling artifacts
+.coverage
+htmlcov/
+*.egg-info/
+
+# Local-only working docs (not part of the published project)
+_private_docs/
