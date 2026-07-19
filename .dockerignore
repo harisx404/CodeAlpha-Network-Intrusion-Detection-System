@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.venv
+venv
+env
+database/nids.db
+logs/
+suricata_logs/
