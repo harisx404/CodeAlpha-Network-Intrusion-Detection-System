@@ -31,7 +31,8 @@ class AuthService:
         return create_access_token({"sub": str(user.id), "role": user.role})
 
 
-# Pre-computed bcrypt hash of a random value, used only for timing equalisation.
-_DUMMY_HASH = "$2b$12$eImiTXuWVxfM37uY4JANjQ.pQzE1z0cM0Q7l3nB0YzJ9Qw1s2t3u"
+# Pre-computed bcrypt hash of a throwaway value, used only for timing
+# equalisation so a missing user and a wrong password take the same time.
+_DUMMY_HASH = "$2b$12$kbBOUDetml/GWLPlwlFURuP/6NdtOWihH.uYFioYqDuCTlNTwC8Ji"
 
 auth_service = AuthService()
