@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PageWrapper } from '@/components/layout/PageWrapper';
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 import { AlertBadge } from '@/components/ui/AlertBadge';
 import { format } from 'date-fns';
+import type { PaginatedResponse } from '@/types/api';
 
 type Alert = {
   id: number;
@@ -12,7 +12,7 @@ type Alert = {
   signature: string;
   severity: string;
   src_ip: string;
-  dest_ip: string;
+  dst_ip: string;
   protocol: string;
   category: string;
 };
@@ -24,10 +24,10 @@ export default function AlertsPage() {
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const res = await api.get('/alerts?limit=50');
-        if (res.data.success) {
-          setAlerts(res.data.data);
-        }
+        const res = await api.get<PaginatedResponse<Alert>>(
+          '/alerts?page=1&per_page=50'
+        );
+        setAlerts(res.data.data ?? []);
       } catch (e) {
         console.error("Failed to fetch alerts", e);
       } finally {
@@ -38,7 +38,6 @@ export default function AlertsPage() {
   }, []);
 
   return (
-    <PageWrapper>
       <div className="flex flex-col space-y-6 h-full">
         <div className="flex justify-between items-center">
           <div>
@@ -86,7 +85,7 @@ export default function AlertsPage() {
                         {alert.signature}
                       </td>
                       <td className="px-6 py-4">{alert.src_ip}</td>
-                      <td className="px-6 py-4">{alert.dest_ip}</td>
+                      <td className="px-6 py-4">{alert.dst_ip}</td>
                       <td className="px-6 py-4">{alert.protocol}</td>
                     </tr>
                   ))
@@ -96,6 +95,5 @@ export default function AlertsPage() {
           </div>
         </div>
       </div>
-    </PageWrapper>
   );
 }

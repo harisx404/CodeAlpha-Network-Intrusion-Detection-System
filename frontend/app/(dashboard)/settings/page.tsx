@@ -1,10 +1,37 @@
 'use client';
 
-import { PageWrapper } from '@/components/layout/PageWrapper';
+import { useState } from 'react';
+import api from '@/lib/api';
 
 export default function SettingsPage() {
+  const [restarting, setRestarting] = useState(false);
+  const [reloading, setReloading] = useState(false);
+
+  const handleRestart = async () => {
+    setRestarting(true);
+    try {
+      await api.post('/system/suricata/restart');
+      alert('Suricata restarted successfully');
+    } catch (e) {
+      alert('Failed to restart Suricata');
+    } finally {
+      setRestarting(false);
+    }
+  };
+
+  const handleReload = async () => {
+    setReloading(true);
+    try {
+      await api.post('/system/suricata/reload');
+      alert('Rules reloaded successfully');
+    } catch (e) {
+      alert('Failed to reload rules');
+    } finally {
+      setReloading(false);
+    }
+  };
+
   return (
-    <PageWrapper>
       <div className="flex flex-col space-y-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
@@ -41,14 +68,25 @@ export default function SettingsPage() {
                   <p className="text-sm text-green-500 font-medium">Running</p>
                 </div>
                 <div className="space-x-2">
-                  <button className="bg-secondary text-secondary-foreground px-3 py-1 rounded-md text-sm font-medium">Restart</button>
-                  <button className="bg-secondary text-secondary-foreground px-3 py-1 rounded-md text-sm font-medium">Reload Rules</button>
+                  <button 
+                    onClick={handleRestart}
+                    disabled={restarting}
+                    className="bg-secondary text-secondary-foreground px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary/80 disabled:opacity-50"
+                  >
+                    {restarting ? 'Restarting...' : 'Restart'}
+                  </button>
+                  <button 
+                    onClick={handleReload}
+                    disabled={reloading}
+                    className="bg-secondary text-secondary-foreground px-3 py-1 rounded-md text-sm font-medium hover:bg-secondary/80 disabled:opacity-50"
+                  >
+                    {reloading ? 'Reloading...' : 'Reload Rules'}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </PageWrapper>
   );
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, Lock, User } from 'lucide-react';
-import { api } from '@/lib/api';
+import api, { setStoredToken } from '@/lib/api';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -27,7 +27,7 @@ export default function LoginPage() {
       });
 
       if (res.data.access_token) {
-        localStorage.setItem('token', res.data.access_token);
+        setStoredToken(res.data.access_token);
         router.push('/dashboard');
       } else {
         setError('Login failed. No token received.');

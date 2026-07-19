@@ -1,10 +1,7 @@
 'use client';
 
-import { PageWrapper } from '@/components/layout/PageWrapper';
-
 export default function ReportsPage() {
   return (
-    <PageWrapper>
       <div className="flex flex-col space-y-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Security Reports</h2>
@@ -16,6 +13,5 @@ export default function ReportsPage() {
           <p className="text-sm text-muted-foreground">Future updates will include automated PDF and CSV export generation for daily/weekly threat intelligence reports.</p>
         </div>
       </div>
-    </PageWrapper>
   );
 }

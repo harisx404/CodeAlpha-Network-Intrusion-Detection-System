@@ -1,10 +1,7 @@
 'use client';
 
-import { PageWrapper } from '@/components/layout/PageWrapper';
-
 export default function MonitoringPage() {
   return (
-    <PageWrapper>
       <div className="flex flex-col space-y-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">System Monitoring</h2>
@@ -16,6 +13,5 @@ export default function MonitoringPage() {
           <p className="text-sm text-muted-foreground">Future updates will include live CPU/RAM usage of Suricata, storage trends, and interface traffic statistics.</p>
         </div>
       </div>
-    </PageWrapper>
   );
 }
