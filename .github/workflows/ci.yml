@@ -81,6 +81,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build backend image
-        run: docker build -f docker/Dockerfile.backend -t nids-backend ./backend
+        run: docker build -f docker/Dockerfile.backend -t nids-backend .
       - name: Build frontend image
-        run: docker build -f docker/Dockerfile.frontend -t nids-frontend ./frontend
+        run: docker build -f docker/Dockerfile.frontend -t nids-frontend .
