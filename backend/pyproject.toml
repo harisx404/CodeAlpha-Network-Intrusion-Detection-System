@@ -1,13 +1,5 @@
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-testpaths = ["../tests/backend"]
-# Use importlib mode so the tests/backend package does not shadow the real
-# `backend` application package on sys.path (conftest handles path setup).
-addopts = "--import-mode=importlib"
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-filterwarnings = ["ignore::DeprecationWarning"]
+# Note: pytest configuration lives in the repository-root pytest.ini so that
+# it is picked up when CI runs `pytest tests/backend/` from the repo root.
 
 [tool.ruff]
 line-length = 88
