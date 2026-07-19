@@ -1,0 +1,43 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"  # Weekly, Mondays at 06:00 UTC
+
+jobs:
+  python-audit:
+    name: Audit Python Dependencies & Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install audit tools
+        run: pip install pip-audit bandit
+      - name: Audit dependencies
+        run: pip-audit -r backend/requirements.txt
+        continue-on-error: true
+      - name: Scan code with Bandit
+        run: bandit -r backend/ -ll
+        continue-on-error: true
+
+  frontend-audit:
+    name: Audit Frontend Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=high
+        working-directory: frontend
+        continue-on-error: true

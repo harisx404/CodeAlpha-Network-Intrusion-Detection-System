@@ -1,0 +1,12 @@
+# Normalize line endings to LF for all text files.
+# Keeps the Windows author and Linux CI from fighting over CRLF/LF.
+* text=auto eol=lf
+
+# Binary assets — never normalize or diff these.
+*.pcap  binary
+*.mmdb  binary
+*.png   binary
+*.jpg   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary

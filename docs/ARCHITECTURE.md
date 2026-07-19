@@ -6,7 +6,7 @@ The CodeAlpha Network Intrusion Detection System is engineered using a strictly 
 
 At the edge of the system sits **Suricata 7.0**. Suricata operates in IPS/IDS mode, bound directly to the host network interface via Docker `network_mode: host` and `privileged: true`.
 
-- **Packet Inspection**: Suricata evaluates raw packets against loaded signatures (`custom.rules`, `local.rules`, Emerging Threats).
+- **Packet Inspection**: Suricata evaluates raw packets against the loaded signature set. The bundled `custom.rules` file (referenced under `rule-files` in `suricata.yaml`) covers common web, scan, and exfiltration patterns, and can be extended with Emerging Threats rulesets.
 - **Output (EVE JSON)**: Instead of writing directly to a database (which introduces massive latency and locks), Suricata streams detections via Unix pipes to `/var/log/suricata/eve.json`.
 
 ## 2. The Ingestion Pipeline (Python / asyncio)

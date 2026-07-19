@@ -26,7 +26,7 @@ Examples of unacceptable behavior include:
 
 ## Enforcement Responsibilities
 
-Community leaders (@Harisx404) are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
+Community leaders (@harisx404) are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
 
 ## Enforcement Guidelines
 

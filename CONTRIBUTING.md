@@ -1,6 +1,6 @@
 # Contributing to CodeAlpha NIDS
 
-Thank you for your interest in contributing to the CodeAlpha Network Intrusion Detection System! This project is maintained by **Muhammad Haris (@Harisx404)**. We welcome pull requests, bug reports, and feature suggestions from the open-source community.
+Thank you for your interest in contributing to the CodeAlpha Network Intrusion Detection System! This project is maintained by **Muhammad Haris (@harisx404)**. We welcome pull requests, bug reports, and feature suggestions from the open-source community.
 
 To ensure the repository maintains its high standard of engineering, please adhere to the following guidelines.
 

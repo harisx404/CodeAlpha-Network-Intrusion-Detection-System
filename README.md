@@ -2,7 +2,9 @@
 
 <div align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version" />
-  <img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build" />
+  <a href="https://github.com/harisx404/CodeAlpha-Network-Intrusion-Detection-System/actions/workflows/ci.yml">
+    <img src="https://github.com/harisx404/CodeAlpha-Network-Intrusion-Detection-System/actions/workflows/ci.yml/badge.svg" alt="CI" />
+  </a>
   <img src="https://img.shields.io/badge/python-3.11-blue.svg" alt="Python 3.11" />
   <img src="https://img.shields.io/badge/next.js-14-black.svg" alt="Next.js" />
   <img src="https://img.shields.io/badge/suricata-7.0-red.svg" alt="Suricata" />
@@ -111,11 +113,11 @@ This project is licensed under the **MIT License**.
   <h2>Muhammad Haris</h2>
   <br />
   
-  <a href="https://github.com/Harisx404">
-    <img src="https://img.shields.io/badge/GitHub-Harisx404-181717?style=for-the-badge&logo=github" alt="GitHub Profile" />
+  <a href="https://github.com/harisx404">
+    <img src="https://img.shields.io/badge/GitHub-harisx404-181717?style=for-the-badge&logo=github" alt="GitHub Profile" />
   </a>
-  <a href="https://linkedin.com/in/Harisx404">
-    <img src="https://img.shields.io/badge/LinkedIn-Harisx404-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn Profile" />
+  <a href="https://linkedin.com/in/harisx404">
+    <img src="https://img.shields.io/badge/LinkedIn-harisx404-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn Profile" />
   </a>
   <a href="mailto:itsharis.tech@gmail.com">
     <img src="https://img.shields.io/badge/Email-itsharis.tech@gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email Contact" />
