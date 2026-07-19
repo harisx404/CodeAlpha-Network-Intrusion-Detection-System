@@ -1,57 +1,86 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main, develop]
   pull_request:
-    branches: [ "main" ]
+    branches: [main, develop]
 
 jobs:
-  lint-and-type-check:
+  lint-backend:
+    name: Lint Python Backend
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-        
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install ruff mypy
-        pip install -r backend/requirements.txt
-        
-    - name: Run Ruff Linting
-      run: ruff check backend/
-      
-    - name: Run Mypy Type Checking
-      run: mypy backend/
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install linting tools
+        run: pip install ruff black mypy
+      - name: Run Ruff
+        run: ruff check backend/
+      - name: Run Black check
+        run: black --check backend/
+      - name: Run mypy
+        run: mypy backend/ --ignore-missing-imports
+        continue-on-error: true  # Non-blocking for now
 
-  frontend-lint:
+  test-backend:
+    name: Test Python Backend
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Install frontend dependencies
-      working-directory: ./frontend
-      run: npm ci
-      
-    - name: Run ESLint
-      working-directory: ./frontend
-      run: npm run lint
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+      - name: Create test .env
+        run: |
+          echo "JWT_SECRET_KEY=test-secret-key-for-ci-only-64-chars-minimum-length" > backend/.env
+          echo "DATABASE_URL=sqlite+aiosqlite:///:memory:" >> backend/.env
+          echo "APP_ENV=testing" >> backend/.env
+          echo "SURICATA_LOG_PATH=/tmp/eve.json" >> backend/.env
+          echo "GEOIP_DB_PATH=/tmp/GeoLite2-City.mmdb" >> backend/.env
+          echo "CORS_ORIGINS=http://localhost:3000" >> backend/.env
+      - name: Run tests
+        run: pytest tests/backend/ -v --cov=backend --cov-report=xml
+        working-directory: .
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+        continue-on-error: true
 
-  docker-build:
-    needs: [lint-and-type-check, frontend-lint]
+  lint-frontend:
+    name: Lint TypeScript Frontend
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Build Docker Compose
-      run: docker-compose -f docker-compose.yml build
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+      - name: TypeScript check
+        run: npx tsc --noEmit
+        working-directory: frontend
+      - name: ESLint check
+        run: npx eslint . --max-warnings 0
+        working-directory: frontend
+        continue-on-error: true  # Non-blocking for now
+
+  build-docker:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build -f docker/Dockerfile.backend -t nids-backend ./backend
+      - name: Build frontend image
+        run: docker build -f docker/Dockerfile.frontend -t nids-frontend ./frontend

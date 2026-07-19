@@ -1,0 +1,56 @@
+%YAML 1.1
+---
+
+vars:
+  address-groups:
+    HOME_NET: "any"
+    EXTERNAL_NET: "any"
+    HTTP_SERVERS: "$HOME_NET"
+  port-groups:
+    HTTP_PORTS: "80,8000,8080,3000"
+
+default-log-dir: /var/log/suricata/
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert:
+            payload: yes
+            payload-buffer-size: 4kb
+            payload-printable: yes
+            packet: yes
+            http-body: yes
+            http-body-printable: yes
+        - http:
+            extended: yes
+        - dns:
+            query: yes
+            answer: yes
+        - tls:
+            extended: yes
+        - files:
+            force-magic: no
+        - drop:
+            alerts: yes
+      
+af-packet:
+  - interface: eth0
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+    use-mmap: yes
+
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+      libhtp:
+         default-config:
+           personality: IDS
+
+default-rule-path: /etc/suricata/rules
+rule-files:
+  - custom.rules
