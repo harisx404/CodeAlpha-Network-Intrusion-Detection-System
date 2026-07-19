@@ -48,3 +48,13 @@ async def update_rule(
     """Update a detection rule."""
     rule = await rule_service.update_rule(db, rule_id=rule_id, rule_in=rule_in)
     return ok(data=DetectionRuleResponse.model_validate(rule), message="Rule updated successfully")
+
+@router.delete("/{rule_id}", summary="Delete a rule")
+async def delete_rule(
+    current_user: AnalystPlus,
+    rule_id: int,
+    db: AsyncSession = Depends(get_db)
+) -> dict:
+    """Delete a detection rule."""
+    await rule_service.delete_rule(db, rule_id=rule_id)
+    return ok(data=None, message="Rule deleted successfully")

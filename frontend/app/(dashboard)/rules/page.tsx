@@ -42,6 +42,17 @@ export default function RulesPage() {
     }
   };
 
+  const handleDeleteRule = async (id: number) => {
+    if (!confirm('Delete this rule? This cannot be undone.')) return;
+    try {
+      await api.delete(`/rules/${id}`);
+      setRules((prev) => prev.filter((r) => r.id !== id));
+    } catch (e) {
+      console.error('Failed to delete rule', e);
+      alert('Failed to delete rule.');
+    }
+  };
+
   useEffect(() => {
     const fetchRules = async () => {
       try {
@@ -123,7 +134,10 @@ export default function RulesPage() {
                   <button className="flex-1 bg-secondary text-secondary-foreground py-2 rounded-md text-sm font-medium hover:bg-secondary/80">
                     Edit
                   </button>
-                  <button className="px-3 bg-secondary text-destructive py-2 rounded-md text-sm font-medium hover:bg-destructive/10">
+                  <button
+                    onClick={() => handleDeleteRule(rule.id)}
+                    className="px-3 bg-secondary text-destructive py-2 rounded-md text-sm font-medium hover:bg-destructive/10"
+                  >
                     Delete
                   </button>
                 </div>
