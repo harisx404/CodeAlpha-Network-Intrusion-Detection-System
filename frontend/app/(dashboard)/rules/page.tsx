@@ -30,8 +30,9 @@ export default function RulesPage() {
         severity: newRule.severity,
         category: newRule.category
       });
-      if (res.data) {
-        setRules([...rules, res.data]);
+      const created = res.data?.data;
+      if (created) {
+        setRules((prev) => [...prev, created]);
         setIsModalOpen(false);
         setNewRule({ sid: '', name: '', body: '', is_active: true, severity: 'INFO', category: 'Misc' });
       }
@@ -45,11 +46,7 @@ export default function RulesPage() {
     const fetchRules = async () => {
       try {
         const res = await api.get('/rules');
-        if (res.data && res.data.items) {
-          setRules(res.data.items);
-        } else if (Array.isArray(res.data)) {
-          setRules(res.data);
-        }
+        setRules(res.data?.data ?? []);
       } catch (e) {
         console.error("Failed to fetch rules", e);
       } finally {
