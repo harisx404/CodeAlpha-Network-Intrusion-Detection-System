@@ -1,4 +1,5 @@
 """API tests for the alerts endpoints."""
+
 import pytest
 from backend.core.security import get_password_hash
 from backend.models.user import User

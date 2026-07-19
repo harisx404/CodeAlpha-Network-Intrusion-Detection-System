@@ -1,4 +1,5 @@
 """Unit tests for the Suricata EVE JSON parser."""
+
 from datetime import datetime
 
 from backend.detection.eve_parser import AlertEvent, EVEEvent, EVEParser

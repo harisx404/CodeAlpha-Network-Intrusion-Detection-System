@@ -1,4 +1,5 @@
 """Unit tests for the detection-rule service layer."""
+
 import pytest
 
 from backend.core.exceptions import NotFoundError
@@ -33,7 +34,9 @@ async def test_create_rule_persists_with_schema_field_names(db_session):
 @pytest.mark.asyncio
 async def test_create_inactive_rule_skips_file_write(db_session):
     # An inactive rule must not attempt to append to the Suricata rules file.
-    rule = await rule_service.create_rule(db_session, rule_in=_rule_data(is_active=False))
+    rule = await rule_service.create_rule(
+        db_session, rule_in=_rule_data(is_active=False)
+    )
     assert rule.is_active is False
 
 
@@ -57,7 +60,9 @@ async def test_delete_missing_rule_raises(db_session):
 async def test_update_rule_changes_fields(db_session):
     rule = await rule_service.create_rule(db_session, rule_in=_rule_data(sid=1000012))
     updated = await rule_service.update_rule(
-        db_session, rule_id=rule.id, rule_in=DetectionRuleUpdate(is_active=False, name="Renamed")
+        db_session,
+        rule_id=rule.id,
+        rule_in=DetectionRuleUpdate(is_active=False, name="Renamed"),
     )
     assert updated.is_active is False
     assert updated.name == "Renamed"

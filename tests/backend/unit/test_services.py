@@ -1,4 +1,5 @@
 """Unit tests for the alert service layer."""
+
 from unittest.mock import AsyncMock, patch
 
 import pytest

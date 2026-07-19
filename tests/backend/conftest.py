@@ -4,6 +4,7 @@ Pytest fixtures for NIDS backend tests.
 Uses in-memory SQLite database for isolation.
 All repository/service dependencies are provided via DI.
 """
+
 import os
 import sys
 
@@ -72,6 +73,7 @@ async def db_session(db_engine):
 @pytest_asyncio.fixture(scope="function")
 async def client(db_session):
     """HTTP test client with real in-memory database."""
+
     async def override_get_db():
         yield db_session
 

@@ -1,4 +1,5 @@
 """Unit tests for the statistics aggregator and IP-block cleanup logic."""
+
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -59,10 +60,16 @@ async def test_aggregate_once_persists_row(db_session):
 async def test_deactivate_expired_only_touches_past_expiries(db_session):
     now = datetime.now(timezone.utc)
     expired = BlockedIP(
-        ip_address="10.0.0.1", reason="expired", expires_at=now - timedelta(minutes=5), is_active=True
+        ip_address="10.0.0.1",
+        reason="expired",
+        expires_at=now - timedelta(minutes=5),
+        is_active=True,
     )
     future = BlockedIP(
-        ip_address="10.0.0.2", reason="active", expires_at=now + timedelta(hours=1), is_active=True
+        ip_address="10.0.0.2",
+        reason="active",
+        expires_at=now + timedelta(hours=1),
+        is_active=True,
     )
     permanent = BlockedIP(
         ip_address="10.0.0.3", reason="permanent", expires_at=None, is_active=True

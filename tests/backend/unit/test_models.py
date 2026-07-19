@@ -1,4 +1,5 @@
 """Unit tests for the ORM models."""
+
 from datetime import UTC, datetime
 
 from backend.core.constants import Severity
