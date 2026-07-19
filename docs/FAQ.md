@@ -2,11 +2,11 @@
 
 ## System Architecture & Performance
 
-### **Q: Will the Next.js frontend crash if there is a massive DDoS attack generating 10,000 alerts per second?**
-**A:** No. The frontend utilizes a specialized debouncing hook (`useWebSocket.ts`) and Zustand state management. Regardless of how many alerts are received over the WebSocket, React will only re-render the DOM a maximum of 10 times per second, deeply merging the new alerts in the background.
+### **Q: How does the frontend handle a burst of alerts over the WebSocket?**
+**A:** Incoming alerts are dispatched into a shared Zustand store (`alertStore.ts`), which deduplicates by `id` and caps the buffer at 1,000 entries so memory stays bounded during long sessions. Components subscribe to specific store slices so only the affected parts of the UI re-render.
 
-### **Q: Why does the backend use `aiofiles` and `asyncio.Queue` instead of directly writing to PostgreSQL?**
-**A:** Traditional synchronous database writes during a network flood will rapidly exhaust the connection pool, causing the API to lock up and drop requests. By buffering the `eve.json` log into an `asyncio.Queue` and using an asynchronous worker to batch-insert records, the system maintains ultra-low latency and absolute stability under heavy load.
+### **Q: Why does the backend tail `eve.json` with `aiofiles` instead of reading it synchronously?**
+**A:** Synchronous file reads would block the asyncio event loop and stall API requests. The `eve_log_watcher` tails the log asynchronously with `aiofiles`, processing a bounded number of lines per read cycle and polling when idle, so ingestion never blocks the rest of the application.
 
 ### **Q: Does Suricata run in promiscuous mode?**
 **A:** Yes. The Suricata container is launched with `network_mode: "host"` and `privileged: true` to allow it to bind to the host's raw sockets and sniff all traffic passing through the interface, not just traffic destined for the Docker bridge.
@@ -22,7 +22,7 @@
 3. Verify the frontend is connected to the WebSocket. A red "Disconnected" badge means the API container might be down.
 
 ### **Q: How do I change the default admin password?**
-**A:** In the development environment, seeded users are generated via `scripts/seed_db.py`. For production, use the FastAPI interactive docs (`http://localhost:8000/docs`) to hit the `/api/v1/auth/reset` endpoint, or execute a direct SQL query against the database.
+**A:** In development, seeded users are created by `scripts/seed_db.py`. There is no self-service password-reset endpoint yet, so change a password by updating the user record directly in the database (store a freshly hashed password) or by re-seeding.
 
 ### **Q: Can I integrate this with my existing SIEM (Splunk/Elastic)?**
 **A:** Yes. The NIDS response engine supports a `WebhookHandler` and a `LogHandler`. You can configure the `WEBHOOK_URL` in your `.env` file to point directly to your SIEM's ingestion endpoint, pushing JSON alerts in real-time.

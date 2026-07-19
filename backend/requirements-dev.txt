@@ -8,3 +8,6 @@ black==24.4.2
 mypy==1.10.0
 bandit==1.7.9
 pip-audit==2.7.3
+
+# Used only by scripts/generate_traffic.py to simulate attack traffic.
+scapy==2.5.0

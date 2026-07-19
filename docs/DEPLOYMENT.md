@@ -39,8 +39,8 @@ server {
     }
 
     # Upgrade WebSockets
-    location /api/v1/ws/ {
-        proxy_pass http://backend:8000/api/v1/ws/;
+    location /ws/ {
+        proxy_pass http://backend:8000/ws/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";

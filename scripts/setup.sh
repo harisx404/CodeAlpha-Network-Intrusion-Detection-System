@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-GREEN='\032[32m'
-RED='\032[31m'
-NC='\032[0m'
+GREEN='\033[32m'
+RED='\033[31m'
+NC='\033[0m'
 
 echo -e "${GREEN}Setting up NIDS Platform...${NC}"
 

@@ -40,7 +40,8 @@ After modifying `custom.rules`, you must tell Suricata to reload them:
 ```bash
 docker-compose exec suricata suricatasc -c rule-reload
 ```
-Or via the API:
+Or via the API (requires an admin bearer token):
 ```bash
-curl -X POST http://localhost:8000/api/v1/rules/reload
+curl -X POST http://localhost:8000/api/v1/system/suricata/reload \
+  -H "Authorization: Bearer <token>"
 ```

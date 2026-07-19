@@ -11,11 +11,12 @@ At the edge of the system sits **Suricata 7.0**. Suricata operates in IPS/IDS mo
 
 ## 2. The Ingestion Pipeline (Python / asyncio)
 
-To ingest logs at speeds exceeding 10,000 events per second, we avoid synchronous reads.
+Log ingestion is fully asynchronous so the event loop is never blocked on file I/O.
 
-- **`aiofiles` Tailing**: A background `asyncio` task (`eve_log_watcher.py`) tails the `eve.json` file asynchronously. 
-- **The Queue Buffer**: Parsed lines are instantly dumped into an `asyncio.Queue`. The file tailer never waits for the database.
-- **The Batch Worker**: A separate consumer pulls from the queue. It groups events into batches of 100 or when a 50ms flush interval is hit.
+- **`aiofiles` Tailing**: A background `asyncio` task (`eve_log_watcher.py`) tails `eve.json`, seeking to the end on startup so historical events aren't replayed.
+- **Bounded Read Cycles**: Each read handles up to `BATCH_SIZE` (50) lines, then yields; when there's no new data it polls every 100ms. This keeps a single busy file from starving the loop.
+- **Resilient Tailing**: The watcher detects log rotation via inode changes, waits for the file to appear if Suricata hasn't started, and skips malformed JSON lines instead of crashing.
+- **Alert Forwarding**: Parsed `alert` events are handed to the alert manager; other EVE event types (dns, http, flow, stats) are parsed but not persisted as alerts.
 
 ## 3. The Core Backend (FastAPI / SQLAlchemy)
 
@@ -32,7 +33,7 @@ The `ConnectionManager` maintains an active registry of connected Next.js client
 
 ## 5. The Frontend (Next.js & Zustand)
 
-To prevent React from crashing under the weight of 1,000 socket messages per second:
-1. **Debouncing / Buffering**: The `useWebSocket.ts` hook intercepts incoming messages and pushes them to a local Javascript array buffer.
-2. **Scheduled Flushes**: Every 100ms, the buffer is flushed and deeply merged into the global **Zustand** state (`alertStore.ts`).
-3. **Optimized Re-renders**: React components subscribe only to specific Zustand slices (e.g., `useAlertStore(state => state.alerts)`), meaning the DOM updates efficiently exactly 10 times a second, remaining perfectly smooth to the human eye.
+The live feed is driven by a WebSocket hook and a shared Zustand store:
+1. **WebSocket Hook**: `useWebSocket.ts` maintains the connection with exponential-backoff reconnection (1s up to 32s) and dispatches each incoming `new_alert` message into the store.
+2. **Zustand Store**: `alertStore.ts` prepends new alerts, deduplicates by `id`, and caps the buffer at 1,000 entries so long-running sessions don't leak memory.
+3. **Sliced Subscriptions**: Components subscribe to specific store slices (e.g., `useAlertStore(state => state.alerts)`), so only the components that use a given slice re-render when it changes.

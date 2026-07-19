@@ -28,18 +28,18 @@ This project bridges that gap by providing a **real-time, asynchronous pipeline*
 This repository strictly adheres to a **Layered Domain-Driven Design (DDD)**, ensuring separation of concerns, scalability, and testability.
 
 ### 1. Detection Engine (Suricata)
-Running in a privileged Docker container bound to the host network interface, Suricata acts as the frontline packet sniffer. It utilizes a combination of Emerging Threats (ET) rules and custom `.rules` files to detect anomalies ranging from nmap scans to SQL injections. Output is aggressively batched to `eve.json`.
+Running in a privileged Docker container bound to the host network interface, Suricata acts as the frontline packet sniffer. It utilizes a combination of Emerging Threats (ET) rules and custom `.rules` files to detect anomalies ranging from nmap scans to SQL injections. Detections are written as line-delimited JSON to `eve.json`.
 
 ### 2. The Asynchronous Backend (FastAPI)
-The core of the system is a Python 3.11 API. To prevent Database Connection Pool exhaustion during a SYN Flood attack, the backend employs:
-- **`aiofiles` & `asyncio.Queue`**: An async worker tails the `eve.json` log, pushing raw JSON into memory queues rather than blocking I/O.
-- **SQLAlchemy (Async)**: Background workers batch-insert records into SQLite (or PostgreSQL).
-- **FastAPI WebSockets**: A broadcast manager pushes the validated `Alert` schemas to connected clients with sub-10ms latency.
+The core of the system is a Python 3.11 API built around non-blocking I/O so ingestion doesn't stall request handling. The backend employs:
+- **`aiofiles` Tailing**: A background async task tails `eve.json` non-blockingly, parsing new lines as they're written rather than blocking the event loop on I/O.
+- **SQLAlchemy (Async)**: Alerts are persisted through an async session to SQLite (or PostgreSQL).
+- **FastAPI WebSockets**: A broadcast manager pushes validated `Alert` payloads to every connected client as soon as they are ingested.
 
 ### 3. The Frontend App (Next.js 14)
-Built with React, TailwindCSS, and Zustand. Real-time SOC dashboards are notoriously difficult to build due to React re-render cycles crashing the browser under heavy alert loads. We solved this by:
-- **Zustand State Stores**: Removing prop-drilling entirely.
-- **Debounced WebSockets**: Incoming frames are buffered into a 100ms window, triggering exactly one React re-render per window regardless of alert volume.
+Built with React, TailwindCSS, and Zustand. Key choices:
+- **Zustand State Stores**: Alerts land in a shared store, keeping prop-drilling out of the component tree.
+- **Auto-reconnecting WebSocket**: A `useWebSocket` hook maintains the live feed with exponential backoff (1s up to 32s) and dispatches incoming alerts straight into the store.
 
 ---
 
@@ -67,10 +67,12 @@ The SOC Dashboard will be immediately available at `http://localhost:3000`. The 
 
 ## 🛡️ Penetration Testing & Simulation
 
-To prove the system works, we included a penetration testing script that utilizes `scapy` to simulate a live attack against the local network interface.
+To exercise the pipeline end to end, we include a traffic-generation script that uses `scapy` to craft attack-like packets against the local interface. `scapy` ships in the dev requirements:
 
 ```bash
-# Generate 60 seconds of realistic attack traffic (Requires root/admin privileges)
+pip install -r backend/requirements-dev.txt
+
+# Generate 60 seconds of attack-like traffic (requires root/admin privileges)
 sudo python scripts/generate_traffic.py --duration 60 --interface eth0
 ```
 *This will immediately trigger Suricata alerts, which will cascade through the async backend and flash red on your Next.js dashboard.*
@@ -90,10 +92,13 @@ For engineers looking to extend this system, please review our deep-dive documen
 
 ## 🤝 Contributing
 
-We enforce strict CI/CD guidelines. All pull requests must pass:
-1. `ruff` for Python linting.
-2. `mypy` for strict static typing.
-3. `eslint` for Next.js best practices.
+CI runs on every pull request. The blocking checks are:
+1. `ruff` — Python linting.
+2. `black --check` — Python formatting.
+3. `tsc --noEmit` — TypeScript type checking.
+4. `pytest` — backend test suite.
+
+`mypy` and `eslint` also run but are currently non-blocking.
 
 Please read `CONTRIBUTING.md` for branch naming conventions and issue templates.
 
