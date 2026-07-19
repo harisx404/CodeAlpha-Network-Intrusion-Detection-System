@@ -4,6 +4,7 @@ NIDS FastAPI Application Factory.
 Configures the application with lifespan management, middleware stack,
 and router registration for all API endpoints.
 """
+import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -23,6 +24,7 @@ from backend.middleware.error_handler import register_exception_handlers
 from backend.middleware.rate_limiter import RateLimiterMiddleware
 from backend.middleware.request_logger import RequestLoggerMiddleware
 from backend.response.response_engine import ResponseEngine
+from backend.services.blocked_ip_service import BlockedIPService
 from backend.services.statistics_service import StatisticsService
 
 log = structlog.get_logger(__name__)
@@ -42,20 +44,29 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     alert_manager = AlertManager(geoip_enricher=geoip, threat_intel=threat_intel)
     response_engine = ResponseEngine()
     stats_service = StatisticsService()
+    blocked_ip_service = BlockedIPService()
 
     # Wire response engine to event bus
     response_engine.start()
 
-    # Start EVE log watcher as background task
+    # Start background tasks.
     watcher = EVELogWatcher(
         filepath=settings.SURICATA_LOG_PATH,
         alert_manager=alert_manager.process_parsed_alert,
     )
-    import asyncio
-    watcher_task = asyncio.create_task(watcher.start(), name="eve_watcher")
-
-    # Start stats aggregator (runs every 60 seconds)
-    # TODO: Implement run_aggregator_loop in StatisticsService
+    background_tasks = [
+        asyncio.create_task(watcher.start(), name="eve_watcher"),
+        # Persist a traffic-statistics snapshot every 60 seconds.
+        asyncio.create_task(
+            stats_service.run_aggregator_loop(interval_seconds=60),
+            name="stats_aggregator",
+        ),
+        # Expire stale IP blocks every 5 minutes.
+        asyncio.create_task(
+            blocked_ip_service.run_cleanup_loop(interval_seconds=300),
+            name="ip_block_cleanup",
+        ),
+    ]
 
     log.info("nids_started")
     yield  # Application is running
@@ -63,11 +74,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Graceful shutdown
     log.info("nids_shutting_down")
     watcher.stop()
-    watcher_task.cancel()
-    try:
-        await asyncio.gather(watcher_task, return_exceptions=True)
-    except Exception:
-        pass
+    for task in background_tasks:
+        task.cancel()
+    await asyncio.gather(*background_tasks, return_exceptions=True)
     log.info("nids_stopped")
 
 
