@@ -37,10 +37,14 @@ function formatNumber(value: number): string {
 
 function MetricCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-      <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+    <div className="glass-panel rounded-lg border border-outline-variant/30 p-6">
+      <p className="font-label-caps text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+        {label}
+      </p>
+      <p className="mt-2 font-headline-md text-[28px] font-bold tracking-tight text-on-surface">
+        {value}
+      </p>
+      {hint && <p className="mt-1 font-code-sm text-[11px] text-on-surface-variant">{hint}</p>}
     </div>
   );
 }
@@ -83,26 +87,30 @@ export default function MonitoringPage() {
     <div className="flex flex-col space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">System Monitoring</h2>
-          <p className="text-muted-foreground">Live health and traffic metrics for NIDS components.</p>
+          <h1 className="font-headline-md text-[24px] font-bold tracking-tight text-on-surface">
+            System Monitoring
+          </h1>
+          <p className="font-body-md text-[14px] text-on-surface-variant">
+            Live health and traffic metrics for NIDS components.
+          </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5">
+          <div className="flex items-center gap-2 rounded border border-outline-variant/30 bg-surface-container px-3 py-1.5">
             <span
               className={`h-2 w-2 rounded-full ${
                 healthy === null
-                  ? 'bg-muted-foreground'
+                  ? 'bg-on-surface-variant'
                   : healthy
                     ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]'
-                    : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'
+                    : 'bg-secondary-container shadow-[0_0_8px_rgba(255,80,110,0.6)]'
               }`}
             />
-            <span className="text-xs font-medium uppercase tracking-widest">
+            <span className="font-label-caps text-[11px] font-bold uppercase tracking-widest text-on-surface">
               {healthy === null ? 'Checking' : healthy ? 'Engine Online' : 'Engine Unreachable'}
             </span>
           </div>
           {lastUpdated && (
-            <span className="text-xs text-muted-foreground">
+            <span className="font-code-sm text-[11px] text-on-surface-variant">
               Updated {lastUpdated.toLocaleTimeString()}
             </span>
           )}
@@ -110,15 +118,15 @@ export default function MonitoringPage() {
       </div>
 
       {loading && !stats ? (
-        <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
+        <div className="glass-panel rounded-lg border border-outline-variant/30 p-8 text-center text-on-surface-variant">
           Loading live metrics...
         </div>
       ) : (
         <>
           <section>
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            <h2 className="mb-3 font-label-caps text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
               Traffic Throughput
-            </h3>
+            </h2>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <MetricCard label="Packets In" value={formatNumber(stats?.packets_in ?? 0)} />
               <MetricCard label="Packets Out" value={formatNumber(stats?.packets_out ?? 0)} />
@@ -128,9 +136,9 @@ export default function MonitoringPage() {
           </section>
 
           <section>
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            <h2 className="mb-3 font-label-caps text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
               Alert Volume
-            </h3>
+            </h2>
             <div className="grid gap-4 sm:grid-cols-3">
               <MetricCard label="Total Alerts" value={formatNumber(stats?.alerts_total ?? 0)} />
               <MetricCard
@@ -146,7 +154,7 @@ export default function MonitoringPage() {
             </div>
           </section>
 
-          <p className="text-xs text-muted-foreground">
+          <p className="font-code-sm text-[11px] text-on-surface-variant">
             Metrics refresh automatically every {REFRESH_MS / 1000} seconds from the latest
             statistics snapshot.
           </p>

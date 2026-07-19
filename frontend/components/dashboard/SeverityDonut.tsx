@@ -1,16 +1,34 @@
 'use client';
 
-import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart as PieChartIcon } from 'lucide-react';
+import { severityStyle } from '@/lib/severity';
+import type { SeverityBreakdown } from '@/types/stats';
 
-export function SeverityDonut({ data }: any) {
-  // Convert object data to array for Recharts
-  // e.g., { "HIGH": 120, "MEDIUM": 340, "LOW": 540 } -> High/Medium/Low
+interface SeverityDonutProps {
+  data: SeverityBreakdown;
+}
+
+export function SeverityDonut({ data }: SeverityDonutProps) {
+  // Collapse the five severity levels into three display buckets so the donut
+  // stays readable, borrowing colours from the shared severity palette.
   const formattedData = [
-    { name: 'Critical/High', value: (data?.['CRITICAL'] || 0) + (data?.['HIGH'] || 0), color: '#ff506e' },
-    { name: 'Medium', value: data?.['MEDIUM'] || 0, color: '#ffba20' },
-    { name: 'Low/Info', value: (data?.['LOW'] || 0) + (data?.['INFO'] || 0), color: '#00dbe7' },
-  ].filter(item => item.value > 0);
+    {
+      name: 'Critical/High',
+      value: (data?.CRITICAL ?? 0) + (data?.HIGH ?? 0),
+      color: severityStyle('CRITICAL').hex,
+    },
+    {
+      name: 'Medium',
+      value: data?.MEDIUM ?? 0,
+      color: severityStyle('MEDIUM').hex,
+    },
+    {
+      name: 'Low/Info',
+      value: (data?.LOW ?? 0) + (data?.INFO ?? 0),
+      color: severityStyle('LOW').hex,
+    },
+  ].filter((item) => item.value > 0);
 
   const total = formattedData.reduce((sum, item) => sum + item.value, 0);
 
@@ -18,9 +36,9 @@ export function SeverityDonut({ data }: any) {
     <div className="glass-panel rounded-lg p-panel-padding flex flex-col h-full border border-outline-variant/30">
       <div className="flex justify-between items-center mb-6">
         <h2 className="font-headline-sm text-[18px] font-semibold">Severity Distribution</h2>
-        <span className="material-symbols-outlined text-on-surface-variant">pie_chart</span>
+        <PieChartIcon className="h-5 w-5 text-on-surface-variant" strokeWidth={2} />
       </div>
-      
+
       <div className="flex-1 flex flex-col items-center justify-center relative">
         <div className="w-full h-48 relative">
           {total === 0 ? (
@@ -40,23 +58,23 @@ export function SeverityDonut({ data }: any) {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {formattedData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  {formattedData.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#122131', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#122131',
                     borderColor: '#3a494b',
                     borderRadius: '8px',
-                    color: '#d4e4fa'
+                    color: '#d4e4fa',
                   }}
                   itemStyle={{ color: '#d4e4fa' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           )}
-          
+
           {total > 0 && (
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="font-headline-md text-[24px] font-bold text-on-surface">

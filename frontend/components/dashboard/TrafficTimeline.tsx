@@ -2,10 +2,14 @@
 
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { AlertTrendPoint } from '@/types/stats';
 
-export function TrafficTimeline({ data }: any) {
-  // Data typically looks like [{ hour: '14:00', count: 12 }, ...]
-  const chartData = data || [];
+interface TrafficTimelineProps {
+  data: AlertTrendPoint[];
+}
+
+export function TrafficTimeline({ data }: TrafficTimelineProps) {
+  const chartData = data ?? [];
 
   return (
     <div className="glass-panel rounded-lg p-panel-padding w-full h-[400px] flex flex-col border border-outline-variant/30">

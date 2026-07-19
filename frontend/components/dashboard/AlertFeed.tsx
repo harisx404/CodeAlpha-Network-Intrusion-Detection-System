@@ -1,20 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAlertStore, type Alert } from '@/stores/alertStore';
+import { Activity } from 'lucide-react';
+import { useAlertStore } from '@/stores/alertStore';
 import api from '@/lib/api';
 import type { PaginatedResponse } from '@/types/api';
+import type { AlertResponse } from '@/types/alert';
+import { SeverityBadge } from '@/components/ui/SeverityBadge';
 import { format } from 'date-fns';
-
-const getSeverityStyle = (severity: string) => {
-  if (severity === 'CRITICAL' || severity === 'HIGH') return "px-2 py-0.5 rounded bg-secondary-container/20 text-secondary-container border border-secondary-container/30";
-  if (severity === 'MEDIUM') return "px-2 py-0.5 rounded bg-tertiary-fixed-dim/20 text-tertiary-fixed-dim border border-tertiary-fixed-dim/30";
-  return "px-2 py-0.5 rounded bg-primary-fixed-dim/20 text-primary-fixed-dim border border-primary-fixed-dim/30";
-};
-
-const getSeverityLabel = (severity: string) => {
-  return severity; // It's already the right string, maybe just return it
-};
 
 export function AlertFeed() {
   const alerts = useAlertStore((state) => state.alerts);
@@ -27,7 +20,7 @@ export function AlertFeed() {
     let cancelled = false;
     const seedFeed = async () => {
       try {
-        const res = await api.get<PaginatedResponse<Alert>>(
+        const res = await api.get<PaginatedResponse<AlertResponse>>(
           '/alerts?page=1&per_page=50'
         );
         if (!cancelled && res.data.data) {
@@ -47,15 +40,15 @@ export function AlertFeed() {
     <div className="glass-panel rounded-lg overflow-hidden flex flex-col h-full border border-outline-variant/30">
       <div className="p-panel-padding border-b border-outline-variant/20 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary-fixed-dim">stream</span>
+          <Activity className="h-5 w-5 text-primary-fixed-dim" strokeWidth={2} />
           <h2 className="font-headline-sm text-[18px] font-semibold">Live Alert Feed</h2>
         </div>
-        <div className="flex gap-2">
-          <button className="font-label-caps text-[10px] px-2 py-1 rounded border border-outline-variant/50 hover:bg-surface-variant transition-colors">Export CSV</button>
-          <button className="font-label-caps text-[10px] px-2 py-1 rounded bg-surface-container-highest border border-outline-variant/30 text-primary-fixed-dim hover:bg-surface-variant transition-colors">Live Sync</button>
+        <div className="flex items-center gap-2 font-label-caps text-[10px] text-on-surface-variant">
+          <span className="w-2 h-2 rounded-full bg-primary-fixed-dim shadow-[0_0_8px_rgba(0,219,231,0.6)] animate-pulse"></span>
+          Streaming
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto max-h-[400px]">
         {displayAlerts.length === 0 ? (
           <div className="h-48 flex items-center justify-center">
@@ -66,28 +59,22 @@ export function AlertFeed() {
             <thead className="sticky top-0 bg-surface-container font-label-caps text-[11px] text-on-surface-variant z-10 shadow-sm">
               <tr>
                 <th className="p-4 border-b border-outline-variant/20">Timestamp</th>
-                <th className="p-4 border-b border-outline-variant/20">Signature ID</th>
+                <th className="p-4 border-b border-outline-variant/20">Signature</th>
                 <th className="p-4 border-b border-outline-variant/20">Severity</th>
                 <th className="p-4 border-b border-outline-variant/20">Source IP</th>
-                <th className="p-4 border-b border-outline-variant/20 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="font-code-sm text-[12px] divide-y divide-outline-variant/10">
               {displayAlerts.map((alert) => (
-                <tr key={alert.id} className="hover:bg-white/5 transition-colors cursor-pointer group">
+                <tr key={alert.id} className="hover:bg-white/5 transition-colors group">
                   <td className="p-4 text-on-surface-variant group-hover:text-on-surface">
-                    {alert.timestamp ? format(new Date(alert.timestamp), 'HH:mm:ss:SSS') : 'N/A'}
+                    {alert.timestamp ? format(new Date(alert.timestamp), 'HH:mm:ss') : 'N/A'}
                   </td>
                   <td className="p-4 text-on-surface font-medium truncate max-w-[200px]">{alert.signature}</td>
                   <td className="p-4">
-                    <span className={getSeverityStyle(alert.severity)}>
-                      {getSeverityLabel(alert.severity)}
-                    </span>
+                    <SeverityBadge severity={alert.severity} />
                   </td>
                   <td className="p-4 text-on-surface-variant">{alert.src_ip}</td>
-                  <td className="p-4 text-right">
-                    <span className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary-fixed-dim transition-colors">more_horiz</span>
-                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
 
 export default function Error({
   error,
@@ -10,20 +11,24 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error('Application Error Boundary Caught:', error);
+    console.error('Application error boundary caught:', error);
   }, [error]);
 
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center bg-zinc-950 text-white">
+    <div className="flex h-screen w-full flex-col items-center justify-center bg-background text-on-surface">
       <div className="flex max-w-md flex-col items-center space-y-4 text-center">
-        <h2 className="text-2xl font-bold text-red-500">Something went wrong!</h2>
-        <p className="text-zinc-400">
-          A critical error occurred in the dashboard component. Please try reloading.
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary-container/15">
+          <AlertTriangle className="h-7 w-7 text-secondary-container" />
+        </span>
+        <h2 className="font-headline-md text-[24px] font-bold text-on-surface">
+          Something went wrong
+        </h2>
+        <p className="font-body-md text-[14px] text-on-surface-variant">
+          A critical error occurred while rendering this view. Please try reloading.
         </p>
         <button
           onClick={() => reset()}
-          className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 transition-colors"
+          className="rounded bg-primary-fixed-dim/20 px-4 py-2 font-label-caps text-[11px] font-bold uppercase tracking-widest text-primary-fixed-dim transition-colors hover:bg-primary-fixed-dim/30"
         >
           Try again
         </button>

@@ -16,6 +16,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -37,10 +38,10 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-background text-on-surface relative">
       <div className="scan-line"></div>
-      <Sidebar />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-1 flex-col overflow-hidden z-10 relative">
-        <Header />
-        <main className="flex-1 overflow-y-auto px-margin-page pb-12 pt-6">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <main className="flex-1 overflow-y-auto px-4 pb-12 pt-6 md:px-margin-page">
           {children}
         </main>
       </div>

@@ -6,6 +6,7 @@
  */
 "use client";
 import { useEffect, useState } from "react";
+import { AlertTriangle, ShieldAlert, Scroll, Database } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { AlertFeed } from "@/components/dashboard/AlertFeed";
 import { SeverityDonut } from "@/components/dashboard/SeverityDonut";
@@ -15,16 +16,7 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ErrorState } from "@/components/common/ErrorState";
 import api from "@/lib/api";
 import type { ApiResponse } from "@/types/api";
-
-interface DashboardStats {
-  total_alerts_today: number;
-  critical_alerts_today: number;
-  active_rules_count: number;
-  packets_analyzed: number;
-  alerts_by_severity: Record<string, number>;
-  alerts_trend_24h: Array<{ hour: string; count: number }>;
-  top_src_ips: Array<{ ip: string; country: string | null; count: number }>;
-}
+import type { DashboardStats } from "@/types/stats";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -38,7 +30,7 @@ export default function DashboardPage() {
           "/statistics/dashboard"
         );
         setStats(res.data.data);
-      } catch (err) {
+      } catch {
         setError("Failed to load dashboard statistics");
       } finally {
         setIsLoading(false);
@@ -77,27 +69,27 @@ export default function DashboardPage() {
         <StatCard
           title="Total Alerts Today"
           value={stats.total_alerts_today}
-          icon="warning"
+          icon={AlertTriangle}
           isLoading={isLoading}
         />
         <StatCard
           title="Critical / High"
           value={stats.critical_alerts_today}
-          icon="dangerous"
+          icon={ShieldAlert}
           variant="critical"
           isLoading={isLoading}
         />
         <StatCard
           title="Active Rules"
           value={stats.active_rules_count}
-          icon="rule"
+          icon={Scroll}
           variant="amber"
           isLoading={isLoading}
         />
         <StatCard
           title="Packets Analyzed"
           value={stats.packets_analyzed}
-          icon="dataset"
+          icon={Database}
           variant="cyan"
           isLoading={isLoading}
         />

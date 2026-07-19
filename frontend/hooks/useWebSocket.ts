@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAlertStore } from "@/stores/alertStore";
 import { getStoredToken } from "@/lib/api";
 import type { WsMessage } from "@/types/api";
+import type { AlertResponse } from "@/types/alert";
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000/ws/events";
 const MAX_RECONNECT_DELAY_MS = 32_000;
@@ -29,7 +30,7 @@ export function useWebSocket(): WebSocketHookReturn {
   const reconnectDelayRef = useRef(1000);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef(true);
-  const addAlerts = useAlertStore((state: any) => state.addAlerts);
+  const addAlerts = useAlertStore((state) => state.addAlerts);
 
   const connect = useCallback(() => {
     const token = getStoredToken();
@@ -50,7 +51,7 @@ export function useWebSocket(): WebSocketHookReturn {
       try {
         const message: WsMessage = JSON.parse(event.data as string);
         if (message.type === "new_alert" && message.data) {
-          addAlerts([message.data]);
+          addAlerts([message.data as unknown as AlertResponse]);
         }
       } catch {
         // Ignore malformed messages

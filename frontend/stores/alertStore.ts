@@ -1,31 +1,21 @@
 import { create } from 'zustand';
-
-export interface Alert {
-  id: number;
-  timestamp: string;
-  src_ip: string;
-  dst_ip: string;
-  signature: string;
-  severity: string;
-  status: string;
-  [key: string]: any;
-}
+import type { AlertResponse } from '@/types/alert';
 
 interface AlertStore {
-  alerts: Alert[];
+  alerts: AlertResponse[];
   /** Prepend live alerts arriving over the websocket. */
-  addAlerts: (newAlerts: Alert[]) => void;
+  addAlerts: (newAlerts: AlertResponse[]) => void;
   /** Replace the feed with an initial page fetched over REST. */
-  setAlerts: (alerts: Alert[]) => void;
+  setAlerts: (alerts: AlertResponse[]) => void;
   clearAlerts: () => void;
 }
 
 const MAX_ALERTS = 1000;
 
 /** Deduplicate by id, preserving order (first occurrence wins). */
-const dedupeById = (alerts: Alert[]): Alert[] => {
+const dedupeById = (alerts: AlertResponse[]): AlertResponse[] => {
   const seen = new Set<number>();
-  const result: Alert[] = [];
+  const result: AlertResponse[] = [];
   for (const alert of alerts) {
     if (seen.has(alert.id)) continue;
     seen.add(alert.id);
