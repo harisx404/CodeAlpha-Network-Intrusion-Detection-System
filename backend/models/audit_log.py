@@ -15,4 +15,5 @@ class AuditLog(Base, TimestampMixin):
     action: Mapped[str] = mapped_column(String(100)) # e.g., "status_change", "rule_updated"
     details: Mapped[str] = mapped_column(String(500))
     
-    alert = relationship("Alert", back_populates="audit_logs")
+    user = relationship("User")
+    alert = relationship("Alert")

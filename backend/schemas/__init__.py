@@ -1,4 +1,4 @@
-from .common import PaginatedResponse, ErrorResponse
+from .common import ApiResponse, ErrorResponse
 from .auth import UserBase, UserCreate, UserResponse, Token, TokenPayload
 from .alert import AlertBase, AlertCreate, AlertUpdate, AlertResponse
 from .event import NetworkEventBase, NetworkEventCreate, NetworkEventResponse
@@ -7,7 +7,7 @@ from .statistics import TrafficStatisticsBase, TrafficStatisticsCreate, TrafficS
 from .audit import AuditLogBase, AuditLogCreate, AuditLogResponse
 
 __all__ = [
-    "PaginatedResponse", "ErrorResponse",
+    "ApiResponse", "ErrorResponse",
     "UserBase", "UserCreate", "UserResponse", "Token", "TokenPayload",
     "AlertBase", "AlertCreate", "AlertUpdate", "AlertResponse",
     "NetworkEventBase", "NetworkEventCreate", "NetworkEventResponse",
