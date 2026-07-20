@@ -1,0 +1,32 @@
+# NIDS-Pro — development overrides (live reload).
+#
+# Docker Compose automatically merges this file on top of docker-compose.yml
+# when you run `docker compose up`. It bind-mounts source code into the
+# containers so edits are reflected without rebuilding the image.
+#
+# For a clean, production-style run that uses only the built images, start with:
+#   docker compose -f docker-compose.yml up --build
+#
+# WARNING: The frontend bind mounts below shadow the standalone build output,
+# so they are ONLY appropriate for local development, not deployment.
+
+services:
+  backend:
+    volumes:
+      - ./backend:/app/backend
+    command:
+      - uvicorn
+      - backend.main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --reload
+
+  frontend:
+    # In dev we run the Next.js dev server against mounted source. This
+    # overrides the production `node server.js` standalone entrypoint.
+    command: sh -c "npm install && npm run dev"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules

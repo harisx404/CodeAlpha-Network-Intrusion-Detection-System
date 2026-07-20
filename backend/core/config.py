@@ -1,22 +1,31 @@
 """Application configuration loaded from environment variables."""
 
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Anchor the .env lookup to the backend package directory so the app loads the
+# same configuration whether it is started from the repo root, the backend
+# folder, or inside a container. Real environment variables (e.g. those
+# injected by Docker Compose via env_file) still take precedence.
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+_ENV_FILE = _BACKEND_DIR / ".env"
 
 
 class Settings(BaseSettings):
     """All application settings loaded from .env file."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(_ENV_FILE),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
     )
 
     # ── Application ──────────────────────────────────────────────────────
+
     APP_NAME: str = "NIDS-Pro"
     APP_ENV: Literal["development", "production", "testing"] = "development"
     APP_HOST: str = "0.0.0.0"
@@ -33,6 +42,11 @@ class Settings(BaseSettings):
 
     # ── Database ─────────────────────────────────────────────────────────
     DATABASE_URL: str = "sqlite+aiosqlite:///./database/nids.db"
+
+    # When true, the app seeds an idempotent demo admin user and sample alerts
+    # on startup. Convenient for `docker compose up` / demos; leave false in
+    # real deployments and bootstrap users with scripts/create_user.py instead.
+    SEED_DEMO_USER: bool = False
 
     # ── Suricata ─────────────────────────────────────────────────────────
     SURICATA_LOG_PATH: str = "/var/log/suricata/eve.json"
