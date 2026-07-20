@@ -10,7 +10,9 @@ from fastapi import APIRouter, HTTPException, status
 router = APIRouter()
 
 
-@router.post("/suricata/reload", summary="Reload Suricata rules", dependencies=[AdminRole])
+@router.post(
+    "/suricata/reload", summary="Reload Suricata rules", dependencies=[AdminRole]
+)
 async def reload_suricata_rules() -> dict:
     """Ask the running Suricata engine to hot-reload its ruleset.
 

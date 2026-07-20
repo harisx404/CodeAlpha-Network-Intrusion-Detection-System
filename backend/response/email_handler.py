@@ -1,7 +1,6 @@
 """Email response handler — notifies operators of critical alerts."""
 
 import structlog
-
 from backend.core.config import settings
 from backend.core.constants import severity_at_least
 from backend.response.base_handler import BaseResponseHandler, ResponseResult

@@ -17,6 +17,21 @@ A professional, production-grade **Network Intrusion Detection System (NIDS)** e
 
 ---
 
+## 📸 Screenshots
+
+> Add product screenshots to the `assets/` folder and reference them here. Suggested captures: the login screen, the populated dashboard (KPI cards + charts), the alerts table, the rules manager, and the live monitoring view.
+
+| Login | Dashboard |
+| :---: | :---: |
+| ![Login](assets/login.png) | ![Dashboard](assets/dashboard.png) |
+
+| Alerts | Rules |
+| :---: | :---: |
+| ![Alerts](assets/alerts.png) | ![Rules](assets/rules.png) |
+
+---
+
+
 ## 🎯 Executive Summary
 
 The modern threat landscape requires network defenses that are not just accurate, but highly observable. Traditional NIDS setups often relegate analysts to archaic terminal interfaces or slow-polling dashboards. 
@@ -65,7 +80,53 @@ bash scripts/setup.sh
 
 The SOC Dashboard will be immediately available at `http://localhost:3000`. The API Swagger documentation is at `http://localhost:8000/docs`.
 
+### Run Modes
+
+The project supports two ways to run the full stack:
+
+**1. Docker (recommended — nginx-fronted).** A single command brings up Suricata, the backend, the frontend, and an nginx reverse proxy:
+
+```bash
+docker compose -f docker-compose.yml up --build
+```
+
+Then open **`http://localhost/`** (port 80, via nginx). The API docs are at `http://localhost/docs`. In this mode the browser talks to everything through nginx, so the frontend is configured with `NEXT_PUBLIC_API_URL=http://localhost/api/v1`.
+
+> Running plain `docker compose up` (without `-f`) also loads `docker-compose.override.yml`, which enables live-reload bind mounts for local development. Use the explicit `-f docker-compose.yml` form for a clean, production-style run.
+
+**2. Local dev (no Docker).** Run the backend and frontend directly:
+
+```bash
+# Backend (from repo root)
+python -c "import secrets; print(secrets.token_hex(32))"   # put this in backend/.env as JWT_SECRET_KEY
+cp backend/.env.example backend/.env
+cd backend && pip install -r requirements.txt
+cd .. && PYTHONPATH=. uvicorn backend.main:app --reload
+
+# Frontend (in a second terminal)
+cd frontend && npm ci && npm run dev
+```
+
+In local dev the frontend runs on `http://localhost:3000` and talks to the backend directly at `http://localhost:8000/api/v1` (set in `frontend/.env.local`).
+
+### First Login
+
+The stack seeds a demo admin user on first startup when `SEED_DEMO_USER=true` (the default in `backend/.env.example` and in Docker). Log in with:
+
+| Field | Value |
+| --- | --- |
+| Username | `admin` |
+| Password | `changeme123` |
+
+> **Change this before any public/production deployment.** For a non-demo setup, set `SEED_DEMO_USER=false` and create users explicitly:
+>
+> ```bash
+> # Prompts for a password (nothing sensitive is committed)
+> PYTHONPATH=. python scripts/create_user.py --username admin --email admin@example.com --role admin
+> ```
+
 ---
+
 
 ## 🛡️ Penetration Testing & Simulation
 

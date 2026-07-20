@@ -1,5 +1,3 @@
-import csv
-import sys
 
 def main():
     print("Export alerts script placeholder.")
