@@ -44,7 +44,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Initialize core components
     await create_tables()
+
+    # Optionally seed an idempotent demo admin + sample alerts so a fresh
+    # `docker compose up` has a working login and populated dashboard.
+    if settings.SEED_DEMO_USER:
+        try:
+            from backend.database.seed import seed_db
+
+            await seed_db()
+        except Exception as exc:  # pragma: no cover - seeding must never block startup
+            log.warning("demo_seed_failed", error=str(exc))
+
     geoip = GeoIPEnricher(settings.GEOIP_DB_PATH)
+
     alert_manager = AlertManager(geoip_enricher=geoip)
     response_engine = ResponseEngine()
     stats_service = StatisticsService()
