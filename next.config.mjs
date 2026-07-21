@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
   reactStrictMode: true,
+
   async rewrites() {
-    // In local development, proxy API requests to the FastAPI backend.
-    // In production (Vercel), Vercel natively routes /api to the Serverless Functions via vercel.json.
+    // ─────────────────────────────────────────────────────────────────────
+    // Local Development: proxy all /api/* requests to the FastAPI backend
+    // running on port 8000 (start it with: uvicorn backend.main:app --reload)
+    //
+    // Production (Vercel): /api/* is routed by vercel.json to the Python
+    // Serverless Function (api/index.py) at the edge, so no rewrite needed.
+    // ─────────────────────────────────────────────────────────────────────
     if (process.env.NODE_ENV === "development") {
       return [
         {

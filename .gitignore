@@ -1,8 +1,9 @@
-# Environments
+# ── Environments ────────────────────────────────────────────────────────────
 .env
 .env.local
+backend/.env
 
-# Python
+# ── Python ───────────────────────────────────────────────────────────────────
 *.pyc
 __pycache__/
 .venv/
@@ -11,38 +12,38 @@ venv/
 .mypy_cache/
 .ruff_cache/
 coverage/
-*.db
+*.db           # SQLite dev database — never commit to version control
+htmlcov/
+*.egg-info/
+.coverage
 
-# Node
+# ── Node / Next.js ───────────────────────────────────────────────────────────
 node_modules/
 .next/
 next-env.d.ts
 dist/
 build/
+*.tsbuildinfo
+.turbo/
 
-# Logs & Data
+# ── Logs & Data ──────────────────────────────────────────────────────────────
 logs/
 *.log
 *.mmdb
 GeoLite2-*.mmdb
 
-# IDE
+# ── IDE ──────────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 .DS_Store
 
-# Node build info & caches
-*.tsbuildinfo
-.turbo/
+# ── Vercel ───────────────────────────────────────────────────────────────────
+.vercel/
+vercel_login.html   # debugging artifact — never commit
 
-# Test & tooling artifacts
-.coverage
-htmlcov/
-*.egg-info/
-
-# Local-only working docs (not part of the published project)
+# ── Private / Local-only ─────────────────────────────────────────────────────
 _private_docs/
 
-# Local development Docker overrides (machine-specific bind mounts)
+# ── Docker overrides (machine-specific bind mounts) ──────────────────────────
 docker-compose.override.yml
