@@ -11,7 +11,6 @@ from backend.core.database import Base  # noqa: F401
 from backend.models import (  # noqa: F401
     alert,
     audit_log,
-    event,
     response_log,
     rule,
     statistics,

@@ -39,6 +39,7 @@ services:
       - ./database:/app/database
       - ./logs:/app/logs
       - ./suricata/rules:/app/rules:ro
+      - ./suricata/data:/opt/geoip:ro
     env_file:
       - ./backend/.env
     environment:
