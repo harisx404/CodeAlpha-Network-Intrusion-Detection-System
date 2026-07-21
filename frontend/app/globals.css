@@ -9,6 +9,21 @@
     @apply bg-background text-on-surface font-sans;
     overflow-x: hidden;
   }
+
+  /* Custom Scrollbar for Webkit */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-container border-l border-outline-variant/20;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-fixed-dim/40 rounded-full border border-surface-container;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-fixed-dim/60;
+  }
 }
 
 @layer utilities {

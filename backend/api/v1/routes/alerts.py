@@ -19,7 +19,7 @@ async def list_alerts(
     current_user: CurrentUser,
     db: Annotated[AsyncSession, Depends(get_db)],
     page: int = Query(default=1, ge=1),
-    per_page: int = Query(default=20, ge=1, le=100),
+    per_page: int = Query(default=20, ge=1, le=1000),
     severity: str | None = Query(default=None),
     status: str | None = Query(default=None),
     src_ip: str | None = Query(default=None),
