@@ -76,6 +76,20 @@ export default function RulesPage() {
     }
   };
 
+  const handleToggleRule = async (rule: Rule) => {
+    const updated = !rule.is_active;
+    try {
+      await api.put<ApiResponse<Rule>>(`/rules/${rule.id}`, { is_active: updated });
+      setRules((prev) =>
+        prev.map((r) => (r.id === rule.id ? { ...r, is_active: updated } : r))
+      );
+      notify(updated ? 'Rule enabled.' : 'Rule disabled.');
+    } catch (e) {
+      console.error('Failed to toggle rule', e);
+      notify('Failed to update rule status.', 'error');
+    }
+  };
+
   const handleDeleteRule = async () => {
     if (pendingDeleteId === null) return;
     const id = pendingDeleteId;
@@ -255,10 +269,20 @@ export default function RulesPage() {
                   ? `${rule.body.substring(0, 100)}...`
                   : rule.body}
               </div>
-              <div className="mt-4 flex">
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => handleToggleRule(rule)}
+                  className={`flex-1 rounded border py-2 font-label-caps text-[11px] font-bold uppercase tracking-widest transition-colors ${
+                    rule.is_active
+                      ? 'border-on-surface-variant/30 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface'
+                      : 'border-primary-fixed-dim/30 text-primary-fixed-dim hover:bg-primary-fixed-dim/10'
+                  }`}
+                >
+                  {rule.is_active ? 'Disable' : 'Enable'}
+                </button>
                 <button
                   onClick={() => setPendingDeleteId(rule.id)}
-                  className="w-full rounded border border-secondary-container/30 py-2 font-label-caps text-[11px] font-bold uppercase tracking-widest text-secondary-container transition-colors hover:bg-secondary-container/15"
+                  className="flex-1 rounded border border-secondary-container/30 py-2 font-label-caps text-[11px] font-bold uppercase tracking-widest text-secondary-container transition-colors hover:bg-secondary-container/15"
                 >
                   Delete
                 </button>
