@@ -45,15 +45,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Initialize core components
     await create_tables()
 
-    # Optionally seed an idempotent demo admin + sample alerts so a fresh
-    # `docker compose up` has a working login and populated dashboard.
-    if settings.SEED_DEMO_USER:
+    # Seed demo data on first run (controlled by SEED_DEMO_DATA env var).
+    # Idempotent — safe to run on every restart.
+    import os
+    if os.getenv("SEED_DEMO_DATA", "true").lower() == "true":
         try:
             from backend.database.seed import seed_db
-
             await seed_db()
         except Exception as exc:  # pragma: no cover - seeding must never block startup
             log.warning("demo_seed_failed", error=str(exc))
+
 
     geoip = GeoIPEnricher(settings.GEOIP_DB_PATH)
 

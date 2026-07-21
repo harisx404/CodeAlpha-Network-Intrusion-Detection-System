@@ -1,25 +1,39 @@
-"""Seed the database with a default admin user and sample alerts for development.
+"""Seed the database with a default admin user, sample alerts, and detection rules.
 
-Idempotent: running it repeatedly will not create duplicate users or pile up
-extra alerts. Intended for local development and demos only.
+Idempotent: running it repeatedly will not create duplicates.
+Intended for local development, demos, and Docker first-run bootstrapping.
 """
 
+from __future__ import annotations
+
 import asyncio
+import os
 import random
+import re
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 from backend.core.constants import AlertStatus, Severity
 from backend.core.database import AsyncSessionLocal
-from backend.core.security import get_password_hash
+from backend.core.security import get_password_hash, verify_password
 from backend.models import Alert, User
+from backend.models.rule import DetectionRule
 from sqlalchemy import func, select
 
+# ── Default credentials (dev/demo only) ───────────────────────────────────────
 DEFAULT_ADMIN_USERNAME = "admin"
 DEFAULT_ADMIN_EMAIL = "admin@nids.local"
-DEFAULT_ADMIN_PASSWORD = (
-    "changeme123"  # noqa: S105 - dev-only default, documented in README
-)
+DEFAULT_ADMIN_PASSWORD = "changeme123"  # noqa: S105 — dev-only default, see README
+
 SAMPLE_ALERT_COUNT = 50
+
+# ── Rules file to import ───────────────────────────────────────────────────────
+# Try common paths: inside container (/app/rules) and local repo path.
+_RULES_SEARCH_PATHS = [
+    Path("/app/rules/custom.rules"),
+    Path("suricata/rules/custom.rules"),
+    Path("../suricata/rules/custom.rules"),
+]
 
 _SIGNATURES = [
     ("ET SCAN Potential SSH Scan OUTBOUND", "Attempted Information Leak", Severity.LOW),
@@ -51,14 +65,89 @@ _SIGNATURES = [
 ]
 _PROTOCOLS = ["TCP", "UDP", "ICMP"]
 
+# ── Severity mapping from Suricata classtype keyword ──────────────────────────
+_CLASSTYPE_SEVERITY: dict[str, str] = {
+    "attempted-admin": "CRITICAL",
+    "attempted-user": "CRITICAL",
+    "web-application-attack": "HIGH",
+    "network-scan": "HIGH",
+    "attempted-recon": "MEDIUM",
+    "suspicious-login": "MEDIUM",
+    "bad-unknown": "MEDIUM",
+    "attempted-login": "LOW",
+    "not-suspicious": "LOW",
+    "policy-violation": "INFO",
+}
+
+
+def _parse_rules_file(path: Path) -> list[dict]:
+    """Parse a Suricata .rules file into structured dicts for DB insertion."""
+    rules: list[dict] = []
+    sid_counter = 0
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        # Extract msg (rule name)
+        msg_match = re.search(r'msg:"([^"]+)"', line)
+        if not msg_match:
+            continue
+        name = msg_match.group(1)
+
+        # Extract SID
+        sid_match = re.search(r"\bsid:(\d+)\b", line)
+        if not sid_match:
+            continue
+        sid = int(sid_match.group(1))
+
+        # Extract classtype for severity mapping
+        classtype_match = re.search(r"\bclasstype:([^;]+)\b", line)
+        classtype = classtype_match.group(1).strip() if classtype_match else ""
+        severity = _CLASSTYPE_SEVERITY.get(classtype, "MEDIUM")
+
+        # Derive category from classtype (title-cased)
+        category = classtype.replace("-", " ").title() if classtype else "Misc"
+
+        rules.append(
+            {
+                "sid": sid,
+                "name": name,
+                "body": line,
+                "severity": severity,
+                "category": category,
+                "is_active": True,
+            }
+        )
+        sid_counter += 1
+
+    return rules
+
 
 async def _seed_admin(session) -> None:
-    """Create the default admin user if it does not already exist."""
+    """Create the default admin user if it does not already exist.
+
+    If the user already exists but the stored hash does not match the expected
+    password (e.g. because bcrypt parameters changed between builds), the hash
+    is silently refreshed so login always works in development.
+    """
     existing = await session.scalar(
         select(User).where(User.username == DEFAULT_ADMIN_USERNAME)
     )
     if existing:
-        print(f"Admin user '{DEFAULT_ADMIN_USERNAME}' already exists — skipping.")
+        # Refresh hash if it no longer verifies — keeps dev login reliable
+        if not verify_password(DEFAULT_ADMIN_PASSWORD, existing.hashed_password):
+            existing.hashed_password = get_password_hash(DEFAULT_ADMIN_PASSWORD)
+            await session.commit()
+            print(
+                f"Admin password hash refreshed — "
+                f"login: {DEFAULT_ADMIN_USERNAME} / {DEFAULT_ADMIN_PASSWORD}"
+            )
+        else:
+            print(
+                f"Admin user '{DEFAULT_ADMIN_USERNAME}' already exists — "
+                f"login: {DEFAULT_ADMIN_USERNAME} / {DEFAULT_ADMIN_PASSWORD}"
+            )
         return
 
     session.add(
@@ -72,7 +161,8 @@ async def _seed_admin(session) -> None:
     )
     await session.commit()
     print(
-        f"Admin user created — username: {DEFAULT_ADMIN_USERNAME} / password: {DEFAULT_ADMIN_PASSWORD}"
+        f"✅ Admin user created  —  "
+        f"username: {DEFAULT_ADMIN_USERNAME}  /  password: {DEFAULT_ADMIN_PASSWORD}"
     )
 
 
@@ -80,11 +170,11 @@ async def _seed_alerts(session) -> None:
     """Populate a fixed number of sample alerts if the table is empty."""
     existing_count = await session.scalar(select(func.count()).select_from(Alert))
     if existing_count:
-        print(f"Alerts table already has {existing_count} rows — skipping sample data.")
+        print(f"Alerts table already has {existing_count} rows — skipping.")
         return
 
     now = datetime.now(UTC)
-    rng = random.Random(42)  # deterministic sample data across runs
+    rng = random.Random(42)  # deterministic sample data
     alerts = []
     for i in range(SAMPLE_ALERT_COUNT):
         signature, category, severity = rng.choice(_SIGNATURES)
@@ -108,7 +198,47 @@ async def _seed_alerts(session) -> None:
 
     session.add_all(alerts)
     await session.commit()
-    print(f"Created {len(alerts)} sample alerts.")
+    print(f"✅ Created {len(alerts)} sample alerts.")
+
+
+async def _seed_rules(session) -> None:
+    """Import Suricata rules from custom.rules into the rules table if empty."""
+    existing_count = await session.scalar(
+        select(func.count()).select_from(DetectionRule)
+    )
+    if existing_count:
+        print(f"Rules table already has {existing_count} rows — skipping.")
+        return
+
+    # Find the rules file
+    rules_path: Path | None = None
+    for candidate in _RULES_SEARCH_PATHS:
+        if candidate.exists():
+            rules_path = candidate
+            break
+
+    if rules_path is None:
+        print("Rules file not found in search paths — skipping rule seeding.")
+        return
+
+    parsed = _parse_rules_file(rules_path)
+    if not parsed:
+        print("No valid rules parsed from file — skipping.")
+        return
+
+    for r in parsed:
+        session.add(
+            DetectionRule(
+                sid=r["sid"],
+                name=r["name"],
+                body=r["body"],
+                severity=r["severity"],
+                category=r["category"],
+                is_active=r["is_active"],
+            )
+        )
+    await session.commit()
+    print(f"✅ Imported {len(parsed)} detection rules from {rules_path}.")
 
 
 async def seed_db() -> None:
@@ -119,6 +249,7 @@ async def seed_db() -> None:
     async with AsyncSessionLocal() as session:
         await _seed_admin(session)
         await _seed_alerts(session)
+        await _seed_rules(session)
 
 
 if __name__ == "__main__":
