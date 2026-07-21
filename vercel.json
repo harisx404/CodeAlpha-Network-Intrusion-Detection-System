@@ -1,9 +1,17 @@
 {
-  "functions": {
-    "api/**/*.py": {
-      "excludeFiles": "{node_modules,.next,public,app,components}/**"
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "excludeFiles": "{node_modules,.next,public,app,components}/**"
+      }
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
     }
-  },
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
