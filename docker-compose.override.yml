@@ -1,32 +1,23 @@
-# NIDS-Pro — development overrides (live reload).
+# docker-compose.override.yml — LOCAL DEVELOPMENT ONLY
 #
-# Docker Compose automatically merges this file on top of docker-compose.yml
-# when you run `docker compose up`. It bind-mounts source code into the
-# containers so edits are reflected without rebuilding the image.
+# This file is automatically merged with docker-compose.yml when you run
+# `docker compose up` locally. It bind-mounts source code so your changes
+# are reflected without rebuilding images.
 #
-# For a clean, production-style run that uses only the built images, start with:
-#   docker compose -f docker-compose.yml up --build
-#
-# WARNING: The frontend bind mounts below shadow the standalone build output,
-# so they are ONLY appropriate for local development, not deployment.
+# DO NOT commit this file if you have local secrets or machine-specific paths.
+# It is already in .gitignore.
 
 services:
   backend:
     volumes:
+      # Mount live source so edits take effect without `docker compose build`
       - ./backend:/app/backend
-    command:
-      - uvicorn
-      - backend.main:app
-      - --host
-      - "0.0.0.0"
-      - --port
-      - "8000"
-      - --reload
+    environment:
+      - APP_ENV=development
+      - DEBUG=true
 
   frontend:
-    # In dev we run the Next.js dev server against mounted source. This
-    # overrides the production `node server.js` standalone entrypoint.
-    command: sh -c "npm install && npm run dev"
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      # Mount the local Next.js build output so the latest UI is served
+      - ./frontend/.next:/app/.next
+      - ./frontend/public:/app/public

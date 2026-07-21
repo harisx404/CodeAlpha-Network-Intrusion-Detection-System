@@ -43,3 +43,6 @@ htmlcov/
 
 # Local-only working docs (not part of the published project)
 _private_docs/
+
+# Local development Docker overrides (machine-specific bind mounts)
+docker-compose.override.yml

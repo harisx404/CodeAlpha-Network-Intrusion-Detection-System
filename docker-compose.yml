@@ -4,8 +4,8 @@
 #   suricata → backend (FastAPI) → frontend (Next.js standalone) → nginx (:80)
 #
 # For a live-reload development workflow that bind-mounts source into the
-# containers, use the docker-compose.override.yml file (applied automatically
-# by `docker compose up`). This base file is safe for a clean deployment.
+# containers, use docker-compose.override.yml (applied automatically by
+# `docker compose up` in development). This base file is safe for clean deployment.
 
 services:
   suricata:
@@ -35,8 +35,6 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Only data/log volumes are mounted — the application code lives in the
-      # built image (never bind-mounted here, so it can't be shadowed).
       - suricata_logs:/var/log/suricata:ro
       - ./database:/app/database
       - ./logs:/app/logs
@@ -44,13 +42,13 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      # Auto-create the demo admin + sample alerts on first startup so a fresh
-      # `docker compose up` has a working login. See README "First login".
-      - SEED_DEMO_USER=${SEED_DEMO_USER:-true}
+      # Auto-create the demo admin + seed sample data on first startup.
+      # Set to false to skip seeding in production.
+      - SEED_DEMO_DATA=${SEED_DEMO_DATA:-true}
     networks:
       - nids
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/system/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/system/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -65,8 +63,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Accessed through nginx on port 80, so browser-facing URLs are relative
-      # to the nginx host rather than the internal container port.
+      # In Docker: nginx proxies /api/ to backend, so browser uses relative URL.
       - NEXT_PUBLIC_API_URL=http://localhost/api/v1
       - NEXT_PUBLIC_WS_URL=ws://localhost/ws/events
     networks:
