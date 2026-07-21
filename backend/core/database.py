@@ -41,13 +41,15 @@ async def create_tables() -> None:
     In production, use Alembic migrations instead.
     This is a safety net for development environments.
     """
-    os.makedirs("database", exist_ok=True)
-    os.makedirs("logs/app", exist_ok=True)
-    os.makedirs("logs/detection", exist_ok=True)
-    os.makedirs("logs/access", exist_ok=True)
-    os.makedirs("logs/errors", exist_ok=True)
-    os.makedirs("logs/audit", exist_ok=True)
-    os.makedirs("logs/responses", exist_ok=True)
+    if os.getenv("VERCEL") != "1":
+        os.makedirs("database", exist_ok=True)
+        os.makedirs("logs/app", exist_ok=True)
+        os.makedirs("logs/detection", exist_ok=True)
+        os.makedirs("logs/access", exist_ok=True)
+        os.makedirs("logs/errors", exist_ok=True)
+        os.makedirs("logs/audit", exist_ok=True)
+        os.makedirs("logs/responses", exist_ok=True)
+        
     async with engine.begin() as conn:
         if settings.APP_ENV != "production":
             await conn.run_sync(Base.metadata.create_all)
