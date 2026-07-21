@@ -1,4 +1,10 @@
 {
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "@vercel/python@latest",
+      "excludeFiles": "{node_modules,.next,public,app,components}/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
