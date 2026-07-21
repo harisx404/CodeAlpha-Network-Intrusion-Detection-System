@@ -118,5 +118,5 @@ class EVELogWatcher:
                     await self._alert_manager(event)
             except json.JSONDecodeError:
                 log.warning("eve_invalid_json", line_preview=line[:100])
-            except Exception as exc:
-                log.error("eve_processing_error", error=str(exc))
+            except Exception:
+                log.exception("eve_processing_error")
