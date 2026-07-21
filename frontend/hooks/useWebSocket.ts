@@ -49,6 +49,12 @@ export function useWebSocket(): WebSocketHookReturn {
     const token = getStoredToken();
     if (!token || !isMountedRef.current) return;
 
+    // Vercel Serverless environment fallback
+    if (process.env.NEXT_PUBLIC_VERCEL === "1") {
+      setIsConnected(true);
+      return;
+    }
+
     const url = `${WS_BASE_URL}?token=${encodeURIComponent(token)}`;
     const ws = new WebSocket(url);
     wsRef.current = ws;
