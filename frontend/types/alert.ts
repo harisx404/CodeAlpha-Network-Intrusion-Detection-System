@@ -36,6 +36,7 @@ export interface AlertResponse {
   protocol: string | null;
   flow_id: string | null;
   geo: GeoData | null;
+  raw_eve: Record<string, unknown> | null;
   notes: string;
   acknowledged_by: number | null;
   acknowledged_at: string | null;

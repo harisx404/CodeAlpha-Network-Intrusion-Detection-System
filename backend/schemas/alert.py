@@ -56,6 +56,7 @@ class GeoData(BaseModel):
 class AlertResponse(AlertBase):
     id: int
     geo: GeoData | None = None
+    raw_eve: dict[str, Any] = Field(default_factory=dict)
     notes: str = ""
     acknowledged_by: int | None = None
     acknowledged_at: datetime | None = None
@@ -96,6 +97,7 @@ class AlertResponse(AlertBase):
             "protocol": data.protocol,
             "flow_id": data.flow_id,
             "geo": geo,
+            "raw_eve": getattr(data, "raw_eve", {}) or {},
             "notes": data.notes,
             "acknowledged_by": data.acknowledged_by,
             "acknowledged_at": data.acknowledged_at,
