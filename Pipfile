@@ -25,5 +25,5 @@ cachetools = "==5.3.3"
 cryptography = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
 
