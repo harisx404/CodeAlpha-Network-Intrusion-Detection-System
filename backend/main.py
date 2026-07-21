@@ -65,32 +65,36 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Wire response engine to event bus
     response_engine.start()
+    background_tasks = []
 
-    # Start background tasks.
-    watcher = EVELogWatcher(
-        filepath=settings.SURICATA_LOG_PATH,
-        alert_manager=alert_manager.process_parsed_alert,
-    )
-    background_tasks = [
-        asyncio.create_task(watcher.start(), name="eve_watcher"),
-        # Persist a traffic-statistics snapshot every 60 seconds.
-        asyncio.create_task(
-            stats_service.run_aggregator_loop(interval_seconds=60),
-            name="stats_aggregator",
-        ),
-        # Expire stale IP blocks every 5 minutes.
-        asyncio.create_task(
-            blocked_ip_service.run_cleanup_loop(interval_seconds=300),
-            name="ip_block_cleanup",
-        ),
-    ]
+    # Start background tasks ONLY if we are NOT on Vercel Serverless
+    if os.getenv("VERCEL") != "1":
+        watcher = EVELogWatcher(
+            filepath=settings.SURICATA_LOG_PATH,
+            alert_manager=alert_manager.process_parsed_alert,
+        )
+        background_tasks.extend([
+            asyncio.create_task(watcher.start(), name="eve_watcher"),
+            # Persist a traffic-statistics snapshot every 60 seconds.
+            asyncio.create_task(
+                stats_service.run_aggregator_loop(interval_seconds=60),
+                name="stats_aggregator",
+            ),
+            # Expire stale IP blocks every 5 minutes.
+            asyncio.create_task(
+                blocked_ip_service.run_cleanup_loop(interval_seconds=300),
+                name="ip_block_cleanup",
+            ),
+        ])
 
-    # Auto-Simulator for Cloud "Deploy and Forget" mode
-    if os.getenv("DEMO_MODE", "true").lower() == "true":
-        from backend.detection.demo_simulator import DemoSimulator
-        demo = DemoSimulator(callback=alert_manager.process_parsed_alert)
-        demo_task = asyncio.create_task(demo.start(), name="demo_simulator")
-        background_tasks.append(demo_task)
+        # Auto-Simulator for Cloud "Deploy and Forget" mode
+        if os.getenv("DEMO_MODE", "true").lower() == "true":
+            from backend.detection.demo_simulator import DemoSimulator
+            demo = DemoSimulator(callback=alert_manager.process_parsed_alert)
+            demo_task = asyncio.create_task(demo.start(), name="demo_simulator")
+            background_tasks.append(demo_task)
+    else:
+        log.info("vercel_serverless_mode", message="Background tasks disabled for Serverless compatibility")
 
     log.info("nids_started")
     yield  # Application is running
