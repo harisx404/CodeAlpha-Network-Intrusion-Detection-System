@@ -24,6 +24,17 @@ It orchestrates **Suricata** (deep packet inspection) with a real-time async **F
 
 ## 🔑 First Login (Default Credentials)
 
+Default Admin Credentials:
+- **Username:** `admin`
+- **Password:** `admin`
+
+### 🚀 1-Click Threat Simulation (For Evaluators)
+Want to see the real-time websocket dashboard light up instantly? Open a new terminal and run the threat simulation script to inject highly realistic malicious Suricata logs:
+```bash
+python scripts/generate_threats.py
+```
+Watch your dashboard immediately populate with volumetric DDoS alerts, Log4Shell probes, and Nmap Scans!
+
 > ⚠️ For local/demo use only. Change these before any real deployment.
 
 | Field    | Value           |

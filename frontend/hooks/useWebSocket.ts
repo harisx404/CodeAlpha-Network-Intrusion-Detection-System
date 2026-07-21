@@ -30,7 +30,20 @@ export function useWebSocket(): WebSocketHookReturn {
   const reconnectDelayRef = useRef(1000);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef(true);
+  
+  const alertBuffer = useRef<AlertResponse[]>([]);
   const addAlerts = useAlertStore((state) => state.addAlerts);
+
+  // Flush buffer every 500ms
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (alertBuffer.current.length > 0) {
+        addAlerts([...alertBuffer.current]);
+        alertBuffer.current = [];
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [addAlerts]);
 
   const connect = useCallback(() => {
     const token = getStoredToken();
@@ -51,7 +64,7 @@ export function useWebSocket(): WebSocketHookReturn {
       try {
         const message: WsMessage = JSON.parse(event.data as string);
         if (message.type === "new_alert" && message.data) {
-          addAlerts([message.data as unknown as AlertResponse]);
+          alertBuffer.current.push(message.data as unknown as AlertResponse);
         }
       } catch {
         // Ignore malformed messages
