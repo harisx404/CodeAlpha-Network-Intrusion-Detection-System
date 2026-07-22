@@ -6,7 +6,7 @@ and router registration for all API endpoints.
 """
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 import structlog
@@ -37,7 +37,7 @@ log = structlog.get_logger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager — startup and shutdown."""
     setup_logging()
     log.info("nids_starting", version="1.0.0", env=settings.APP_ENV)
