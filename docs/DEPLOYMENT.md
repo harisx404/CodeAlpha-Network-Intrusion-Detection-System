@@ -1,12 +1,12 @@
 # Deployment Guide
 
-This document covers all supported deployment targets for NIDS-Pro.
+This document covers all supported deployment targets for IntruShield NIDS.
 
 ---
 
 ## Option 1 — Vercel (Recommended for Demos & Evaluators)
 
-NIDS-Pro is pre-configured for zero-config deployment to Vercel as a hybrid application:
+IntruShield NIDS is pre-configured for zero-config deployment to Vercel as a hybrid application:
 
 - **Frontend** → Vercel Edge CDN (Next.js)
 - **Backend** → Vercel Python Serverless Function (`api/index.py`)
@@ -112,7 +112,7 @@ See the [README — Option B](../README.md#option-b--manual-local-development) f
 
 ## Production Hardening Checklist
 
-Before exposing NIDS-Pro to the internet:
+Before exposing IntruShield NIDS to the internet:
 
 - [ ] Change `admin` password immediately after first login
 - [ ] Set a strong, unique `JWT_SECRET_KEY` (minimum 64 characters)

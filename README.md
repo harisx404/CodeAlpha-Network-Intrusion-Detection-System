@@ -21,7 +21,7 @@
 
 It seamlessly orchestrates **Suricata** (deep packet inspection engine) with a high-performance, real-time async **FastAPI** backend and a responsive **Next.js 14** analytics dashboard — delivering instant threat visibility from raw network wire traffic to analyst screens.
 
-> 🌐 **Live Production Demo:** [https://nids-pro.vercel.app](https://nids-pro.vercel.app)
+> 🌐 **Live Production Demo:** [https://intrushield-nids.vercel.app](https://intrushield-nids.vercel.app)
 
 ---
 
@@ -174,7 +174,7 @@ The application is deployed as a **hybrid Vercel Serverless** application:
 | `JWT_SECRET_KEY` | Minimum 64-character random string |
 | `APP_ENV` | `production` |
 | `VERCEL` | `1` (set automatically by Vercel) |
-| `CORS_ORIGINS` | Your Vercel domain (e.g. `https://nids-pro.vercel.app`) |
+| `CORS_ORIGINS` | Your Vercel domain (e.g. `https://intrushield-nids.vercel.app`) |
 
 After setting environment variables, trigger a new Vercel deployment, then visit:
 
