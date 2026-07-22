@@ -1,4 +1,4 @@
-# NIDS-Pro — production-style Docker Compose stack.
+# IntruShield NIDS — production-style Docker Compose stack.
 #
 # Brings up the full platform behind nginx:
 #   suricata → backend (FastAPI) → frontend (Next.js standalone) → nginx (:80)

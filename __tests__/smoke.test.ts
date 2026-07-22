@@ -3,7 +3,7 @@
  * functions and type definitions are sound. These run in CI via `npm test`.
  */
 
-describe('NIDS-Pro smoke tests', () => {
+describe('IntruShield NIDS smoke tests', () => {
   it('severity levels are well-defined', () => {
     const levels = ['INFO', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
     expect(levels).toHaveLength(5);

@@ -1,8 +1,18 @@
 # Changelog
 
-All notable changes to NIDS-Pro are documented in this file.
+All notable changes to IntruShield NIDS are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/).
+
+---
+
+## [1.3.0] - 2026-07-22
+
+### Added & Rebranded
+- **Platform Rebranding to IntruShield NIDS** — Complete project identity overhaul establishing **IntruShield NIDS** as an autonomous, enterprise-grade Threat Telemetry & Intrusion Detection System.
+- **Author Attribution & Copyright Clean-up** — Consolidated 100% authorship and project copyright under **Muhammad Haris (@harisx404)**.
+- **UI & Metadata Refresh** — Updated Next.js layout metadata, application header/sidebar branding, and OpenAPI FastAPI documentation to match IntruShield NIDS standards.
+- **Vercel & Domain Optimization** — Production domain alias configured at `intrushield-nids.vercel.app` with Node.js 20.x LTS runtime.
 
 ---
 
