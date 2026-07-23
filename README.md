@@ -51,6 +51,30 @@ It seamlessly orchestrates **Suricata** (deep packet inspection engine) with a h
 
 ---
 
+## 📸 Platform Screenshots
+
+<div align="center">
+  <h3>Security Command — Real-Time SOC Dashboard</h3>
+  <img src="docs/screenshots/intrushield-nids-dashboard.png" alt="Security Command SOC Dashboard" width="100%" />
+
+  <br/><br/>
+
+  <h3>Alert Center — Live Incident Log & Filtering</h3>
+  <img src="docs/screenshots/intrushield-nids-alerts.png" alt="Alert Center Incident Log" width="100%" />
+
+  <br/><br/>
+
+  <h3>Detection Rules — Suricata Signature Management</h3>
+  <img src="docs/screenshots/intrushield-nids-rules.png" alt="Suricata Detection Rules" width="100%" />
+
+  <br/><br/>
+
+  <h3>System Monitoring — Traffic Throughput & Component Metrics</h3>
+  <img src="docs/screenshots/intrushield-nids-monitoring.png" alt="System Monitoring Metrics" width="100%" />
+</div>
+
+---
+
 ## 🏗️ System Architecture
 
 ```
