@@ -1,6 +1,7 @@
 """Service layer for traffic/alert statistics and dashboard aggregation."""
 
 import asyncio
+import random
 from datetime import UTC, datetime, timedelta
 
 import structlog
