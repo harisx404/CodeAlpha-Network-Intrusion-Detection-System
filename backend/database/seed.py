@@ -173,7 +173,9 @@ async def _seed_alerts(session) -> None:
         for i, alert in enumerate(existing_alerts):
             alert.timestamp = now - timedelta(minutes=i * 5)
         await session.commit()
-        print(f"✅ Refreshed timestamps for {len(existing_alerts)} existing alerts to today.")
+        print(
+            f"✅ Refreshed timestamps for {len(existing_alerts)} existing alerts to today."
+        )
         return
 
     rng = random.Random(42)  # deterministic sample data
@@ -213,8 +215,8 @@ async def _seed_stats(session) -> None:
         alerts_total=50,
         alerts_critical=12,
         alerts_high=28,
-        bytes_in=10485760,   # 10 MB
-        bytes_out=5242880,    # 5 MB
+        bytes_in=10485760,  # 10 MB
+        bytes_out=5242880,  # 5 MB
         packets_in=12450,
         packets_out=8920,
     )
@@ -282,4 +284,3 @@ if __name__ == "__main__":
     print("Seeding database...")
     asyncio.run(seed_db())
     print("Database seeding complete.")
-
